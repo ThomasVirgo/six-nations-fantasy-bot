@@ -25,7 +25,7 @@ class Match:
     
     def summarise_match(self):
         if self.winning_team == self.home_team:
-            print(f"{self.winning_team} expected to win. Probability of {self.home_win_prob:.2f} vs {self.away_win_prob:.2f}")
+            print(f"{self.winning_team} expected to win against {self.away_team}. Probability of {self.home_win_prob:.2f} vs {self.away_win_prob:.2f}")
         if self.winning_team == self.away_team:
-            print(f"{self.winning_team} expected to win. Probability of {self.away_win_prob:.2f} vs {self.home_win_prob:.2f}")
+            print(f"{self.winning_team} expected to win against {self.home_team}. Probability of {self.away_win_prob:.2f} vs {self.home_win_prob:.2f}")
             

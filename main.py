@@ -8,6 +8,8 @@ from classes.match import Match
 
 load_dotenv()
 PATH_TO_CHROMEDRIVER = os.getenv('PATH_TO_CHROMEDRIVER')
+EMAIL = os.getenv('EMAIL')
+PASSWORD = os.getenv('PASSWORD')
 
 def run():
     print('Running main script...')
@@ -31,10 +33,26 @@ def run():
     for i in range(0, len(odds_text), 3):
         chunk = odds_text[i:i + 3]
         odds_lists.append(chunk)
-    
+
+    matches = []
     for teams_playing, odds_strings in zip(teams_lists, odds_lists):
         match = Match(teams_playing[0], teams_playing[1], odds_strings[0], odds_strings[1], odds_strings[2])
         match.summarise_match()
+        matches.append(match)
+
+    # login to the six nations fantasy and scrape all players
+    driver.get("https://fantasy.sixnationsrugby.com/#/welcome/login")
+    sleep(3)
+    email_input = driver.find_element_by_css_selector('[type|="email"]')
+    email_input.click()
+    email_input.send_keys(EMAIL)
+    password_input = driver.find_element_by_css_selector('[type|="password"]')
+    password_input.click()
+    password_input.send_keys(PASSWORD)
+    submit_btn = driver.find_element_by_css_selector('[type|="submit"]')
+    driver.execute_script("arguments[0].click();", submit_btn)
+    sleep(3)
+
     print('----finished processing----')
     driver.quit()
 
