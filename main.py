@@ -34,7 +34,7 @@ def run():
     
     for teams_playing, odds_strings in zip(teams_lists, odds_lists):
         match = Match(teams_playing[0], teams_playing[1], odds_strings[0], odds_strings[1], odds_strings[2])
-        print(match)
+        match.summarise_match()
     print('----finished processing----')
     driver.quit()
 
