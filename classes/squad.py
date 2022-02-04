@@ -1,9 +1,12 @@
 class Player:
-    def __init__(self, name, position, country, cost) -> None:
+    def __init__(self, name, position, cost, country=None) -> None:
         self.name = name
         self.position = position
         self.country = country
         self.cost = cost
+    
+    def __str__(self) -> str:
+        return f'{self.name} -- {self.position} -- {self.cost}'
 
 class Squad:
     def __init__(self) -> None:

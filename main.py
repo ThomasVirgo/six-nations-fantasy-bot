@@ -1,3 +1,4 @@
+from turtle import position
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -5,6 +6,7 @@ from time import sleep
 import os
 from dotenv import load_dotenv
 from classes.match import Match
+from classes.squad import Player
 
 load_dotenv()
 PATH_TO_CHROMEDRIVER = os.getenv('PATH_TO_CHROMEDRIVER')
@@ -52,9 +54,31 @@ def run():
     submit_btn = driver.find_element_by_css_selector('[type|="submit"]')
     driver.execute_script("arguments[0].click();", submit_btn)
     sleep(3)
+    player_tab = driver.find_element_by_xpath('//*[@id="fs-content-menu"]/div[2]/div/equipe-page/div/equipe/div[3]/div[2]/button')
+    player_tab.click()
+    sleep(1)
+    position_list = ['Fullback', 'Wing', 'Centre', 'Fly-half', 'Scrum-half', 'Back-row', 'Second-row', 'Prop', 'Hooker']
+    position_dropdown = driver.find_element_by_xpath('//*[@id="mat-tab-content-1-0"]/div/div/form/fieldset/mat-form-field[3]')
+    position_dropdown.click()
+    dropdown_options = driver.find_elements_by_class_name("sport2")
+    dropdown_options = [option for option in dropdown_options if option.text.strip() in position_list]
+    for option in dropdown_options:
+        players = []
+        position = str(option.text.strip())
+        option.click()
+        sleep(1)
+        names = driver.find_elements_by_class_name('nom-joueur')
+        costs = driver.find_elements_by_class_name('valeur-joueur-nb')
+        for a,b in zip(names, costs):
+            players.append(Player(a.text, position, b.text))
+        position_dropdown.click()
+        for player in players:
+            print(player)
+        sleep(1)
 
     print('----finished processing----')
     driver.quit()
-
+    
 if __name__ == '__main__':
     run()
+
