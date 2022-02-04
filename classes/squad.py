@@ -7,7 +7,7 @@ class Player:
         self.is_benched = False
     
     def __str__(self) -> str:
-        return f'{self.name} -- {self.position} -- {self.cost} -- {self.is_benched}'
+        return f'{self.name} -- {self.position} -- {self.country} -- {self.cost} -- {self.is_benched}'
 
 class Squad:
     def __init__(self, players_on_fantasy, starting_players, matches) -> None:
@@ -69,59 +69,53 @@ class Squad:
         country = list(self.rankings.keys())[list(self.rankings.values()).index(2)]
         positions = ['Centre', 'Back-row', 'Second-row', 'Hooker']
         count = 0
-        for player in self.starting:
-            if player.country != country:
-                continue
-            for pos in positions:
-                if player.position == pos:
-                    count += 1
-                    if count > 4: return
-                    self.selected_players.append(player)
-                    continue
+        for i in range(4):
+            pos = positions[i]
+            valid_players = [player for player in self.starting if self.is_player_valid(player, country, pos)]
+            self.selected_players.append(valid_players[0])
+
 
     def select_rank3_players(self):
         country = list(self.rankings.keys())[list(self.rankings.values()).index(3)]
         positions = ['Centre', 'Back-row', 'Second-row', 'Prop']
         count = 0
-        for player in self.starting:
-            if player.country != country:
-                continue
-            for pos in positions:
-                if player.position == pos:
-                    count += 1
-                    if count > 4: return
-                    self.selected_players.append(player)
-                    continue
+
+        for i in range(4):
+            pos = positions[i]
+            valid_players = [player for player in self.starting if self.is_player_valid(player, country, pos)]
+            self.selected_players.append(valid_players[0])
+
 
     def select_rank4_players(self):
         country = list(self.rankings.keys())[list(self.rankings.values()).index(4)]
         positions =  ['Back-row', 'Second-row', 'Prop', 'Hooker']
         count = 0
-        for player in self.starting:
-                    if player.country != country:
-                        continue
-                    for pos in positions:
-                        if player.position == pos:
-                            count += 1
-                            if count > 3: return
-                            if count == 3: player.is_benched = True
-                            self.selected_players.append(player)
-                            continue
+
+        for i in range(3):
+            pos = positions[i]
+            valid_players = [player for player in self.starting if self.is_player_valid(player, country, pos)]
+            count +=1
+            chosen = valid_players[0]
+            if count == 3: chosen.is_benched = True
+            self.selected_players.append(chosen)
+
 
     def select_rank5_players(self):
         country = list(self.rankings.keys())[list(self.rankings.values()).index(5)]
         positions = ['Scrum-half', 'Back-row', 'Second-row', 'Prop', 'Hooker']
         count = 0
-        for player in self.starting:
-            if player.country != country:
-                continue
-            for pos in positions:
-                if player.position == pos:
-                    count += 1
-                    if count > 3: return
-                    if count > 1: player.is_benched = True
-                    self.selected_players.append(player)
-                    continue
+        for i in range(3):
+            pos = positions[i]
+            valid_players = [player for player in self.starting if self.is_player_valid(player, country, pos)]
+            count +=1
+            chosen = valid_players[0]
+            if count > 1: chosen.is_benched = True
+            self.selected_players.append(chosen)
+    
+    def is_player_valid(self, player, country, position):
+        if player.country == country and player.position == position:
+            return True
+        return False
     
     def summarise_squad(self):
         for player in self.selected_players:
