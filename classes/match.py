@@ -7,6 +7,8 @@ class Match:
         self.away_odds = away_odds
         self.calc_winning_probabilities()
         self.winning_team = self.determine_winning_team()
+        self.isItalyPlaying = (self.home_team == 'Italy' or self.away_team == 'Italy')
+        self.is_home_win = self.winning_team == self.home_team
  
     def __str__(self) -> str:
         return f"{self.home_team} (Home) vs {self.away_team} (Away)"

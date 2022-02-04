@@ -1,3 +1,4 @@
+from itertools import count
 from turtle import position
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -6,12 +7,30 @@ from time import sleep
 import os
 from dotenv import load_dotenv
 from classes.match import Match
-from classes.squad import Player
+from classes.squad import Player, Squad
 
 load_dotenv()
 PATH_TO_CHROMEDRIVER = os.getenv('PATH_TO_CHROMEDRIVER')
 EMAIL = os.getenv('EMAIL')
 PASSWORD = os.getenv('PASSWORD')
+
+POSITION_MAP = {
+    "1": "Prop",
+    "2": "Hooker",
+    "3": "Prop",
+    "4": "Second-row",
+    "5": "Second-row",
+    "6": "Back-row",
+    "7": "Back-row",
+    "8": "Back-row",
+    "9": "Scrum-half",
+    "10": "Fly-half",
+    "11": "Wing",
+    "12": "Centre",
+    "13": "Centre",
+    "14": "Wing",
+    "15": "Fullback"
+}
 
 def run():
     print('Running main script...')
@@ -62,23 +81,59 @@ def run():
     position_dropdown.click()
     dropdown_options = driver.find_elements_by_class_name("sport2")
     dropdown_options = [option for option in dropdown_options if option.text.strip() in position_list]
+    players_on_fantasy = []
     for option in dropdown_options:
-        players = []
         position = str(option.text.strip())
         option.click()
         sleep(1)
         names = driver.find_elements_by_class_name('nom-joueur')
         costs = driver.find_elements_by_class_name('valeur-joueur-nb')
         for a,b in zip(names, costs):
-            players.append(Player(a.text, position, b.text))
+            players_on_fantasy.append(Player(a.text, position, b.text))
         position_dropdown.click()
-        for player in players:
-            print(player)
         sleep(1)
-
-    print('----finished processing----')
+    for player in players_on_fantasy:
+            print(player)
+    # need to grab remaining budget as well
     driver.quit()
     
+    # get starting squads from six nations fixtures site
+    starting_players = scrape_fixtures()
+
+    squad = Squad(players_on_fantasy, starting_players, matches)
+    squad.summarise_squad()
+    return players_on_fantasy, starting_players, matches, squad
+
+
+
+def scrape_fixtures():
+    driver = webdriver.Chrome(executable_path=PATH_TO_CHROMEDRIVER)
+    driver.get("https://www.sixnationsrugby.com/fixtures/")
+    fixtures = driver.find_elements_by_css_selector('[title^="Preview"]')
+    fixtures = fixtures[:3] # want first three as it is week 1
+    # fixture_names = [fixture.get_attribute("title") for fixture in fixtures]
+    fixture_urls = [fixture.get_attribute("href") for fixture in fixtures]
+    nations = ['ENGLAND', 'SCOTLAND', 'WALES', 'FRANCE', 'ITALY', 'IRELAND']
+    starting_players = []
+    for url in fixture_urls:
+        new_url = f'{url}#teams'
+        driver.get(new_url)
+        sleep(2)
+        player_divs = driver.find_elements_by_class_name("ta-left") #home teams on the left
+        divs_text = [div.text for div in player_divs]
+        country = None
+        for text in divs_text:
+            if text in nations:
+                country = text.title()
+                continue
+            number, name = text.splitlines()
+            try:
+                starting_players.append(Player(name, POSITION_MAP[number], 0, country))
+            except:
+                continue
+    driver.quit()
+    return starting_players
+           
+
 if __name__ == '__main__':
     run()
-
